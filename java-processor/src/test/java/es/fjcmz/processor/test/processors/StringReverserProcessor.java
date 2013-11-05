@@ -24,6 +24,12 @@ public class StringReverserProcessor extends BaseProcessor<List<String[]>, List<
 	// //
 	
 	protected List<String[]> reverse(List<String[]> strs) {
+		// sleep for 10  ms, simulating a heavy processing
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException ex) {
+			// ignore
+		}
 		if (strs == null) {
 			return null;
 		}
@@ -46,7 +52,7 @@ public class StringReverserProcessor extends BaseProcessor<List<String[]>, List<
 	}
 	
 	protected String reverse(String str) {
-		return StringUtils.reverse(name);
+		return StringUtils.reverse(str);
 	}
 
 }

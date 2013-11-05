@@ -1,4 +1,4 @@
-package es.fjcmz.processor.test.simple;
+package es.fjcmz.processor.test.parallel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,21 +9,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import es.fjcmz.processor.Runner;
-import es.fjcmz.processor.simple.impl.SimpleRunnerImpl;
+import es.fjcmz.processor.parallel.impl.ParallelRunnerImpl;
 import es.fjcmz.processor.test.processors.CSVReaderProcessorFactory;
 import es.fjcmz.processor.test.processors.CSVWriterProcessorFactory;
 import es.fjcmz.processor.test.processors.StringReverserProcessorFactory;
 
 /**
  * This test will read all the CSV files from FILE_NAMES, reverse all the lines and write them all together into another CSV file created with File.createTempFile(); <br>
- * This test uses a simple runner, that is an execution that uses a single thread and runs in the same thread as the caller. 
+ * This test uses a parallel runner, that is an execution that uses multiple threads to parallelize the execution. 
  * 
  * @author "Javier Cano"
  *
  */
-public class SimpleRunnerTest {
+public class ParallelRunnerTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SimpleRunnerTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ParallelRunnerTest.class);
 	
 	@Test
 	public void test() {
@@ -33,15 +33,15 @@ public class SimpleRunnerTest {
 		CSVWriterProcessorFactory writerFactory = new CSVWriterProcessorFactory();
 		// Initial products
 		List<File> inputFiles = asFiles(FILE_NAMES);
-		// Prepare a simple execution
-		Runner runner = new SimpleRunnerImpl("CSV processing", readerFactory)
-			.chain(reverserFactory)
-			.chain(writerFactory);
+		// Prepare a parallel execution
+		Runner runner = new ParallelRunnerImpl("CSV processing", readerFactory, FILE_NAMES.length, 1024)
+			.chain(reverserFactory, 4, 100, 10L)
+			.chain(writerFactory, 1, 100, 10L);
 		// Execute and measure it
 		long start = System.currentTimeMillis();
 		runner.executeOn(inputFiles, NULL);
 		long elapsed = System.currentTimeMillis() - start;
-		LOG.debug("Finished Simple executor for {} iput files in {} ms", FILE_NAMES.length, elapsed);
+		LOG.debug("Finished Parallel executor for {} iput files in {} ms", FILE_NAMES.length, elapsed);
 	}
 	
 	protected List<File> asFiles(String[] fileNames) {
